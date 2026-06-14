@@ -19,12 +19,20 @@ await connectDB();
 const app = express();
 
 // ── Core Middleware ───────────────────────────────────────────
+const allowedOrigins = [
+  'http://localhost:5173',   // Vite dev server (web dashboard)
+  'http://localhost:3000',   // alternate dev port
+  /^chrome-extension:\/\//,  // Chrome extension
+];
+
+if (process.env.FRONTEND_URL) {
+  // Support comma-separated URLs
+  const customOrigins = process.env.FRONTEND_URL.split(',').map(o => o.trim());
+  allowedOrigins.push(...customOrigins);
+}
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',   // Vite dev server (web dashboard)
-    'http://localhost:3000',   // alternate dev port
-    /^chrome-extension:\/\//,  // Chrome extension
-  ],
+  origin: allowedOrigins,
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
